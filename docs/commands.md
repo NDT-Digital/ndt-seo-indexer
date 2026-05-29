@@ -215,12 +215,14 @@ nsi generate
 
 ### Flags
 
-| Flag                   | Descrição                               |
-| ---------------------- | --------------------------------------- |
-| `-c, --config <path>`  | Usa um arquivo local.                   |
-| `-p, --project <name>` | Usa um projeto registrado.              |
-| `-s, --sitemap <name>` | Gera somente um sitemap específico.     |
-| `--dry-run`            | Simula a geração sem escrever arquivos. |
+| Flag                   | Descrição                                                     |
+| ---------------------- | ------------------------------------------------------------- |
+| `-c, --config <path>`  | Usa um arquivo local.                                         |
+| `-p, --project <name>` | Usa um projeto registrado.                                    |
+| `-s, --sitemap <name>` | Gera somente um sitemap específico.                           |
+| `--dry-run`            | Simula a geração sem escrever arquivos e sem usar checkpoint. |
+| `--no-resume`          | Ignora retomada automática de checkpoint nesta execução.      |
+| `--force`              | Ignora checkpoint incompleto e reinicia a geração do zero.    |
 
 ## Exemplos
 
@@ -246,4 +248,16 @@ Gerar por arquivo local:
 
 ```bash
 nsi generate --config ./configs/example.nsi.config.json
+```
+
+Reiniciar do zero ignorando checkpoint incompleto:
+
+```bash
+nsi generate --force
+```
+
+Executar sem retomada automática nesta chamada:
+
+```bash
+nsi generate --no-resume
 ```

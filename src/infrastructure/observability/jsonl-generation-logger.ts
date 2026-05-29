@@ -1,11 +1,12 @@
 import { createWriteStream, type WriteStream } from "node:fs";
 import { mkdir } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import type {
   GenerationEvent,
   GenerationObserver,
 } from "../../domain/generation-observer";
 import type { ProjectConfig } from "../../domain/types";
+import type { GenerationCheckpointSession } from "../../domain/generation-checkpoint";
 import {
   createGenerationLogFilename,
   resolveProjectLogsDirectory,
@@ -14,6 +15,7 @@ import {
 export type JsonlGenerationLoggerOptions = {
   config: ProjectConfig;
   runId: string;
+  filePath: string;
 };
 
 export class JsonlGenerationLogger implements GenerationObserver {
@@ -35,14 +37,39 @@ export class JsonlGenerationLogger implements GenerationObserver {
   static async create(
     options: JsonlGenerationLoggerOptions,
   ): Promise<JsonlGenerationLogger> {
-    const directory = resolveProjectLogsDirectory(options.config);
-    await mkdir(directory, { recursive: true });
+    await mkdir(dirname(options.filePath), { recursive: true });
 
     return new JsonlGenerationLogger(
       options.config,
       options.runId,
-      join(directory, createGenerationLogFilename(options.runId)),
+      options.filePath,
     );
+  }
+
+  static async createFromSession(
+    config: ProjectConfig,
+    session: GenerationCheckpointSession,
+  ): Promise<JsonlGenerationLogger> {
+    return JsonlGenerationLogger.create({
+      config,
+      runId: session.runId,
+      filePath: session.logFilePath,
+    });
+  }
+
+  static async createNew(
+    options: Pick<JsonlGenerationLoggerOptions, "config" | "runId">,
+  ): Promise<JsonlGenerationLogger> {
+    const directory = resolveProjectLogsDirectory(options.config);
+    const filePath = join(
+      directory,
+      createGenerationLogFilename(options.runId),
+    );
+
+    return JsonlGenerationLogger.create({
+      ...options,
+      filePath,
+    });
   }
 
   async onEvent(event: GenerationEvent): Promise<void> {

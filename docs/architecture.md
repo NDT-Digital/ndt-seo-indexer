@@ -175,3 +175,7 @@ Essa tabela deve conter apenas registros que realmente podem virar páginas púb
 A geração possui uma camada de observabilidade separada do core. O caso de uso emite eventos de domínio da execução, como `generation_started`, `sitemap_file_created` e `generation_completed`. Adaptadores de infraestrutura transformam esses eventos em logs JSONL e visualização resumida no console.
 
 Essa separação mantém o fluxo de geração desacoplado do formato de log, permitindo adicionar novos destinos futuramente sem alterar as regras centrais de geração de sitemaps.
+
+## Checkpoints
+
+A camada de aplicação registra checkpoints de geração por projeto. O checkpoint fica separado do log JSONL e permite retomar uma execução interrompida a partir do último arquivo XML concluído. Se a configuração mudar ou os arquivos esperados não existirem, a execução reinicia do zero sem travar a CLI.

@@ -2,6 +2,7 @@ import {
   NoopGenerationObserver,
   type GenerationObserver,
 } from "../../domain/generation-observer";
+import type { GenerationCheckpointSession } from "../../domain/generation-checkpoint";
 import type { ProjectConfig } from "../../domain/types";
 import { CompositeGenerationObserver } from "../../infrastructure/observability/composite-generation-observer";
 import { JsonlGenerationLogger } from "../../infrastructure/observability/jsonl-generation-logger";
@@ -10,14 +11,17 @@ import { PrettyConsoleReporter } from "./pretty-console-reporter";
 
 export async function createCliGenerationObserver(
   config: ProjectConfig,
+  session?: GenerationCheckpointSession,
 ): Promise<GenerationObserver> {
   if (config.logging?.enabled === false) {
     return createConsoleObserver(config) ?? new NoopGenerationObserver();
   }
 
-  const runId = createRunId();
+  const runId = session?.runId ?? createRunId();
   const observers: GenerationObserver[] = [
-    await JsonlGenerationLogger.create({ config, runId }),
+    session
+      ? await JsonlGenerationLogger.createFromSession(config, session)
+      : await JsonlGenerationLogger.createNew({ config, runId }),
   ];
   const consoleObserver = createConsoleObserver(config);
 

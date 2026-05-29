@@ -8,6 +8,22 @@ export type GenerationErrorPayload = {
 
 export type GenerationEvent =
   | {
+      type: "generation_resumed";
+      level: "info";
+      runId: string;
+      logFilePath: string;
+      checkpointFilePath: string;
+      reason?: string;
+    }
+  | {
+      type: "generation_checkpoint_restarted";
+      level: "info";
+      runId: string;
+      logFilePath: string;
+      checkpointFilePath?: string;
+      reason: string;
+    }
+  | {
       type: "generation_started";
       level: "info";
       command: "generate";
@@ -16,6 +32,7 @@ export type GenerationEvent =
       outputDirectory: string;
       sitemapIndexFilename: string;
       selectedSitemaps: string[];
+      resumeMode?: string;
     }
   | {
       type: "sitemap_started";

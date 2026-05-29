@@ -28,15 +28,17 @@ JSONL significa que cada linha do arquivo é um JSON independente. Isso facilita
 
 A CLI registra eventos de alto nível:
 
-| Evento                  | Descrição                                    |
-| ----------------------- | -------------------------------------------- |
-| `generation_started`    | Início da execução de geração.               |
-| `sitemap_started`       | Início da geração de um sitemap configurado. |
-| `sitemap_file_created`  | Arquivo XML de sitemap criado.               |
-| `sitemap_completed`     | Conclusão de um sitemap configurado.         |
-| `sitemap_index_created` | Criação do sitemap index principal.          |
-| `generation_completed`  | Conclusão geral da geração.                  |
-| `generation_failed`     | Falha geral da geração.                      |
+| Evento                            | Descrição                                                     |
+| --------------------------------- | ------------------------------------------------------------- |
+| `generation_resumed`              | Retomada de uma execução incompleta usando checkpoint válido. |
+| `generation_checkpoint_restarted` | Checkpoint encontrado, mas ignorado ou invalidado.            |
+| `generation_started`              | Início da execução de geração.                                |
+| `sitemap_started`                 | Início da geração de um sitemap configurado.                  |
+| `sitemap_file_created`            | Arquivo XML de sitemap criado.                                |
+| `sitemap_completed`               | Conclusão de um sitemap configurado.                          |
+| `sitemap_index_created`           | Criação do sitemap index principal.                           |
+| `generation_completed`            | Conclusão geral da geração.                                   |
+| `generation_failed`               | Falha geral da geração.                                       |
 
 A CLI não registra:
 
@@ -64,6 +66,44 @@ A CLI não registra:
   "dryRun": false
 }
 ```
+
+## Checkpoints de geração
+
+Além dos logs JSONL, o `generate` mantém um checkpoint por projeto para permitir retomada de execuções interrompidas.
+
+A estrutura padrão fica assim:
+
+```txt
+~/.ndt-seo-indexer/projects/<project>/
+  checkpoints/
+    generate-state.json
+  logs/
+    generate-2026-05-29T22-30-15-123Z-a8f31c.jsonl
+  dist/
+```
+
+O checkpoint registra o `runId`, o arquivo de log da execução, o hash da configuração, os sitemaps concluídos, os arquivos XML já gerados, quantidade de URLs por arquivo e tamanho gravado.
+
+Quando uma geração é interrompida antes do fim, a próxima execução de `nsi generate` tenta retomar automaticamente a partir do último arquivo XML concluído. Exemplo: se o sitemap `records` parou após `records-600.xml`, a próxima execução continua a partir de `records-601.xml`.
+
+A retomada só acontece quando:
+
+- existe checkpoint incompleto;
+- a configuração atual é compatível com o hash salvo no checkpoint;
+- os arquivos já registrados no checkpoint ainda existem;
+- os tamanhos dos arquivos batem com o que foi salvo.
+
+Se o checkpoint estiver incompatível, corrompido ou apontar para arquivos ausentes, a CLI não trava. Ela registra o motivo e reinicia a geração do zero.
+
+Quando uma execução termina com sucesso, o checkpoint é marcado como `completed`. Uma nova chamada de `nsi generate` começa uma geração nova, útil para atualizações mensais da base.
+
+### Flags relacionadas
+
+| Flag          | Descrição                                                   |
+| ------------- | ----------------------------------------------------------- |
+| `--force`     | Ignora checkpoint incompleto e começa do zero.              |
+| `--no-resume` | Desabilita retomada automática apenas nessa execução.       |
+| `--dry-run`   | Simula geração sem escrever arquivos e sem usar checkpoint. |
 
 ## Console durante a execução
 

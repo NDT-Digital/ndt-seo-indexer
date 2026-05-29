@@ -170,7 +170,7 @@ Para ambientes em que você queira esconder a conexão, ainda é possível usar 
 
 ## Observabilidade
 
-O comando `nsi generate` cria logs JSONL por execução e mostra progresso resumido no terminal.
+O comando `nsi generate` cria logs JSONL por execução, mostra progresso resumido no terminal e mantém um checkpoint do último arquivo concluído para retomar execuções interrompidas.
 
 Por padrão, projetos registrados gravam logs em:
 

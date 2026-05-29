@@ -259,3 +259,7 @@ Para alterações grandes, como editar a lista de `sitemaps`, recomenda-se abrir
 ```bash
 nsi project path
 ```
+
+## Checkpoints
+
+A retomada de geração é automática no comando `nsi generate`. A CLI grava `checkpoints/generate-state.json` ao lado da pasta de saída do projeto. Não é necessário configurar esse caminho manualmente. Use `--force` para ignorar um checkpoint e reiniciar do zero, ou `--no-resume` para desabilitar a retomada apenas naquela execução.

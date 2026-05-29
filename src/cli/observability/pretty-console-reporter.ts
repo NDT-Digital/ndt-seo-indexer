@@ -26,9 +26,19 @@ export class PrettyConsoleReporter implements GenerationObserver {
 
   onEvent(event: GenerationEvent): void {
     switch (event.type) {
+      case "generation_resumed":
+        this.writeLine(
+          `${this.time()} ${this.color("Resuming checkpoint", "cyan")} · run=${event.runId} · checkpoint=${event.checkpointFilePath}`,
+        );
+        break;
+      case "generation_checkpoint_restarted":
+        this.writeLine(
+          `${this.time()} ${this.color("Checkpoint ignored", "cyan")} · ${event.reason}`,
+        );
+        break;
       case "generation_started":
         this.writeLine(
-          `${this.time()} ${this.color("NSI generate started", "green")} · project=${this.project ?? "unknown"} · sitemaps=${event.selectedSitemaps.join(",") || "all"} · output=${event.outputDirectory}`,
+          `${this.time()} ${this.color("NSI generate started", "green")} · project=${this.project ?? "unknown"} · sitemaps=${event.selectedSitemaps.join(",") || "all"} · output=${event.outputDirectory} · mode=${event.resumeMode ?? "fresh"}`,
         );
         break;
       case "sitemap_started":

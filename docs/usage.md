@@ -148,3 +148,7 @@ https://example.com/sitemaps/records-1.xml
 ```
 
 Depois, envie o `sitemap.xml` principal no Google Search Console.
+
+## Retomando uma geração interrompida
+
+Se `nsi generate` for interrompido no meio de uma geração grande, execute o mesmo comando novamente. A CLI tenta validar o checkpoint do projeto e continua a partir do próximo arquivo pendente. Para começar do zero, use `nsi generate --force`.
