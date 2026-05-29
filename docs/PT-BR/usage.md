@@ -1,4 +1,4 @@
-# Usage
+# Uso
 
 Este guia mostra um fluxo completo de uso local do NDT SEO Indexer.
 
@@ -22,12 +22,6 @@ E define esse projeto como atual.
 nsi project list
 ```
 
-Saída esperada:
-
-```txt
-* example — /home/user/.ndt-seo-indexer/projects/example/example.nsi.config.json
-```
-
 ## 3. Ver configuração
 
 ```bash
@@ -45,7 +39,7 @@ nsi project path
 ```bash
 nsi config set siteUrl https://example.org
 nsi config set output.directory ./dist/generated-sitemaps
-nsi config set limits.urlsPerSitemap 40000
+nsi config set limits.urlsPerSitemap 50000
 ```
 
 Para alterações grandes, como adicionar providers, edite o JSON diretamente.
@@ -56,12 +50,7 @@ Para alterações grandes, como adicionar providers, edite o JSON diretamente.
 nsi validate
 ```
 
-Esse comando valida:
-
-- formato da configuração;
-- output configurado;
-- providers configurados;
-- estimativa de registros quando possível.
+Esse comando valida formato da configuração, output e providers.
 
 ## 6. Planejar
 
@@ -69,16 +58,7 @@ Esse comando valida:
 nsi plan
 ```
 
-Esse comando mostra uma estimativa:
-
-```txt
-Project: example
-Site URL: https://example.org
-Output: ./dist/generated-sitemaps
-
-Sitemaps:
-- static (static) | urls=2 | batch=40000 | files=1
-```
+Esse comando mostra estimativas de URLs e arquivos.
 
 ## 7. Gerar
 
@@ -106,27 +86,13 @@ nsi generate --sitemap static
 
 ## 10. Usar múltiplos projetos
 
-Crie outro projeto:
-
 ```bash
 nsi project create second-project --site-url https://second.example.com
-```
-
-Alternar projeto atual:
-
-```bash
 nsi project use second-project
-```
-
-Executar um projeto específico sem trocar o atual:
-
-```bash
 nsi generate --project example
 ```
 
 ## 11. Usar sem registro global
-
-Também é possível usar apenas arquivo local:
 
 ```bash
 nsi init --project local-example --site-url https://example.com
@@ -142,6 +108,7 @@ Os arquivos gerados precisam ser publicados pelo site, proxy ou storage.
 Exemplo:
 
 ```txt
+https://example.com/robots.txt
 https://example.com/sitemap.xml
 https://example.com/sitemaps/static.xml
 https://example.com/sitemaps/records-1.xml
@@ -151,4 +118,10 @@ Depois, envie o `sitemap.xml` principal no Google Search Console.
 
 ## Retomando uma geração interrompida
 
-Se `nsi generate` for interrompido no meio de uma geração grande, execute o mesmo comando novamente. A CLI tenta validar o checkpoint do projeto e continua a partir do próximo arquivo pendente. Para começar do zero, use `nsi generate --force`.
+Se `nsi generate` for interrompido no meio de uma geração grande, execute o mesmo comando novamente. A CLI tenta validar o checkpoint do projeto e continua a partir do próximo arquivo pendente.
+
+Para começar do zero:
+
+```bash
+nsi generate --force
+```

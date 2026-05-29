@@ -74,6 +74,14 @@ export type GenerationEvent =
       dryRun: boolean;
     }
   | {
+      type: "robots_created";
+      level: "info";
+      file: string;
+      sitemap: string;
+      fileSizeBytes: number;
+      dryRun: boolean;
+    }
+  | {
       type: "generation_completed";
       level: "info";
       totalUrls: number;

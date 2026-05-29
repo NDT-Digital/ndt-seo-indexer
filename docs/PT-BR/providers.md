@@ -29,21 +29,19 @@ Use para grandes volumes vindos de PostgreSQL.
   "name": "records",
   "type": "postgres",
   "filenamePattern": "sitemaps/records-{page}.xml",
-  "batchSize": 40000,
+  "batchSize": 50000,
   "urlPattern": "/records/:slug",
   "lastmodField": "updated_at",
   "source": {
     "connectionString": "postgres://user:password@localhost:5432/database",
-    "fetchSize": 5000,
-    "query": "SELECT slug, updated_at FROM seo_indexable_records WHERE is_indexable = true ORDER BY slug",
-    "countQuery": "SELECT COUNT(*) FROM seo_indexable_records WHERE is_indexable = true"
+    "fetchSize": 10000,
+    "query": "SELECT slug, updated_at FROM seo_indexable_records ORDER BY slug",
+    "countQuery": "SELECT COUNT(*) FROM seo_indexable_records"
   }
 }
 ```
 
 O provider usa cursor no PostgreSQL para evitar carregar todo o resultado em memória.
-
-### Campos do source PostgreSQL
 
 | Campo                 | Obrigatório | Descrição                                          |
 | --------------------- | ----------- | -------------------------------------------------- |
@@ -52,8 +50,6 @@ O provider usa cursor no PostgreSQL para evitar carregar todo o resultado em mem
 | `query`               | Sim         | Query que retorna os registros.                    |
 | `countQuery`          | Não         | Query para estimar total de registros.             |
 | `fetchSize`           | Não         | Quantidade de linhas por fetch do cursor.          |
-
-Use `connectionString` se quiser que tudo esteja no arquivo de configuração. Use `connectionStringEnv` se quiser esconder credenciais fora do arquivo.
 
 ## Provider `csv`
 
@@ -64,7 +60,7 @@ Use para arquivos CSV com cabeçalho.
   "name": "pages",
   "type": "csv",
   "filenamePattern": "sitemaps/pages-{page}.xml",
-  "batchSize": 40000,
+  "batchSize": 50000,
   "urlPattern": "/pages/:slug",
   "lastmodField": "updated_at",
   "source": {
@@ -72,14 +68,6 @@ Use para arquivos CSV com cabeçalho.
     "delimiter": ","
   }
 }
-```
-
-Exemplo de CSV:
-
-```csv
-slug,updated_at
-first-page,2026-01-01T00:00:00.000Z
-second-page,2026-01-02T00:00:00.000Z
 ```
 
 ## Provider `json`
@@ -91,24 +79,13 @@ Use para arquivos JSON.
   "name": "pages",
   "type": "json",
   "filenamePattern": "sitemaps/pages-{page}.xml",
-  "batchSize": 40000,
+  "batchSize": 50000,
   "urlPattern": "/pages/:slug",
   "lastmodField": "updated_at",
   "source": {
     "file": "./pages.json",
     "itemsPath": "items"
   }
-}
-```
-
-Exemplo de JSON:
-
-```json
-{
-  "items": [
-    { "slug": "first-page", "updated_at": "2026-01-01T00:00:00.000Z" },
-    { "slug": "second-page", "updated_at": "2026-01-02T00:00:00.000Z" }
-  ]
 }
 ```
 
@@ -124,26 +101,3 @@ Cada linha pode retornar:
 | campo definido em `lastmodField`    | Valor usado em `<lastmod>`.    |
 | campo definido em `changefreqField` | Valor usado em `<changefreq>`. |
 | campo definido em `priorityField`   | Valor usado em `<priority>`.   |
-
-## Recomendação para bases grandes
-
-Para bases grandes, prefira uma tabela intermediária de SEO, com registros já filtrados e prontos para indexação.
-
-Exemplo:
-
-```txt
-seo_indexable_records
-```
-
-Campos sugeridos:
-
-```txt
-slug
-updated_at
-is_indexable
-priority
-source
-created_at
-```
-
-Isso evita gerar sitemaps para páginas fracas, duplicadas ou sem valor para busca.

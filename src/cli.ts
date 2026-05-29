@@ -21,12 +21,21 @@ function getPackageVersion(): string {
 async function main(): Promise<void> {
   const program = new Command();
 
+  const packageVersion = getPackageVersion();
+
   program
     .name("nsi")
     .description(
       "NDT SEO Indexer — scalable sitemap generator for programmatic SEO.",
     )
-    .version(getPackageVersion());
+    .version(packageVersion, "-v, --version", "Show CLI version");
+
+  program
+    .command("version")
+    .description("Show CLI version")
+    .action(() => {
+      console.log(packageVersion);
+    });
 
   registerInitCommand(program);
   registerProjectCommand(program);

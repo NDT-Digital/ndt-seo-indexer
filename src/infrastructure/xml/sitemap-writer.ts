@@ -1,8 +1,25 @@
 import type { SitemapUrl } from "../../domain/types";
+import { createXmlSignatureComment } from "../signature/generated-file-signature";
 import { escapeXml } from "./xml-escape";
 
-export function createSitemapHeader(): string {
-  return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+export type SitemapHeaderInput = {
+  generatedAt?: string;
+  sitemapName?: string;
+  page?: number;
+};
+
+export function createSitemapHeader(input: SitemapHeaderInput = {}): string {
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    createXmlSignatureComment({
+      generatedAt: input.generatedAt,
+      type: "urlset",
+      sitemapName: input.sitemapName,
+      page: input.page,
+    }).trimEnd(),
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    "",
+  ].join("\n");
 }
 
 export function createSitemapFooter(): string {

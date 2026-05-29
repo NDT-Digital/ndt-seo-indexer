@@ -55,6 +55,12 @@ export class PrettyConsoleReporter implements GenerationObserver {
           `${this.time()} ${this.color("Sitemap index created", "green")} · ${event.file} · files=${event.sitemapFileCount}`,
         );
         break;
+      case "robots_created":
+        this.finishProgressLine();
+        this.writeLine(
+          `${this.time()} ${this.color("Robots created", "green")} · ${event.file} · sitemap=${event.sitemap}`,
+        );
+        break;
       case "sitemap_completed":
         this.finishProgressLine();
         this.writeLine(

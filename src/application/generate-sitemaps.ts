@@ -22,6 +22,7 @@ import {
   createSitemapHeader,
   serializeSitemapUrl,
 } from "../infrastructure/xml/sitemap-writer";
+import { serializeRobotsTxt } from "../infrastructure/robots/robots-writer";
 import { serializeSitemapIndex } from "../infrastructure/xml/sitemap-index-writer";
 import { endStream, writeToStream } from "../utils/async";
 import { normalizeRelativeFilePath } from "../utils/path";
@@ -29,6 +30,7 @@ import { mapRowToSitemapUrl } from "./url-mapper";
 
 const DEFAULT_URLS_PER_SITEMAP = 40_000;
 const DEFAULT_SITEMAP_INDEX_FILENAME = "sitemap.xml";
+const ROBOTS_FILENAME = "robots.txt";
 
 export type GenerateOptions = {
   sitemapName?: string;
@@ -131,6 +133,7 @@ export async function generateSitemaps(
     }
 
     let sitemapIndexFileSizeBytes = 0;
+    let robotsFileSizeBytes = 0;
 
     if (!dryRun && !options.sitemapName) {
       await output.writeText(
@@ -146,6 +149,17 @@ export async function generateSitemaps(
         sitemapFileCount: generatedFiles.length,
         fileSizeBytes: sitemapIndexFileSizeBytes,
       });
+
+      await output.writeText(
+        ROBOTS_FILENAME,
+        serializeRobotsTxt({
+          siteUrl: config.siteUrl,
+          sitemapIndexFilename,
+        }),
+      );
+      robotsFileSizeBytes = await getFileSize(
+        output.resolvePath(ROBOTS_FILENAME),
+      );
     }
 
     if (!options.sitemapName) {
@@ -155,6 +169,15 @@ export async function generateSitemaps(
         file: sitemapIndexFilename,
         sitemapFileCount: generatedFiles.length,
         fileSizeBytes: sitemapIndexFileSizeBytes,
+        dryRun,
+      });
+
+      await observer.onEvent({
+        type: "robots_created",
+        level: "info",
+        file: ROBOTS_FILENAME,
+        sitemap: sitemapIndexFilename,
+        fileSizeBytes: robotsFileSizeBytes,
         dryRun,
       });
     }
@@ -170,7 +193,7 @@ export async function generateSitemaps(
       ),
       totalBytesWritten: generatedFiles.reduce(
         (total, file) => total + (file.fileSizeBytes ?? 0),
-        sitemapIndexFileSizeBytes,
+        sitemapIndexFileSizeBytes + robotsFileSizeBytes,
       ),
     };
 
@@ -178,7 +201,7 @@ export async function generateSitemaps(
 
     await checkpointStore?.markCompleted({
       totalUrls: result.totalUrls,
-      totalFiles: generatedFiles.length + (options.sitemapName ? 0 : 1),
+      totalFiles: generatedFiles.length + (options.sitemapName ? 0 : 2),
       totalBytesWritten: result.totalBytesWritten,
       durationMs,
     });
@@ -187,7 +210,7 @@ export async function generateSitemaps(
       type: "generation_completed",
       level: "info",
       totalUrls: result.totalUrls,
-      totalFiles: generatedFiles.length + (options.sitemapName ? 0 : 1),
+      totalFiles: generatedFiles.length + (options.sitemapName ? 0 : 2),
       totalBytesWritten: result.totalBytesWritten,
       durationMs,
       dryRun,
@@ -337,7 +360,14 @@ async function generateSingleSitemap(
 
         if (!dryRun) {
           currentStream = await output.createWriteStream(filename);
-          await writeToStream(currentStream, createSitemapHeader());
+          await writeToStream(
+            currentStream,
+            createSitemapHeader({
+              generatedAt: lastmod,
+              sitemapName: sitemapConfig.name,
+              page,
+            }),
+          );
         } else {
           currentStream = createDryRunStream();
         }
