@@ -168,6 +168,20 @@ Para não depender de `.env`, informe a conexão diretamente no arquivo de proje
 
 Para ambientes em que você queira esconder a conexão, ainda é possível usar `connectionStringEnv`, mas isso é opcional.
 
+## Observabilidade
+
+O comando `nsi generate` cria logs JSONL por execução e mostra progresso resumido no terminal.
+
+Por padrão, projetos registrados gravam logs em:
+
+```txt
+~/.ndt-seo-indexer/projects/<project>/logs/
+```
+
+A CLI registra início, conclusão, erros e cada arquivo de sitemap gerado. URLs individuais não são logadas para evitar arquivos gigantes.
+
+Veja mais em [`docs/observability.md`](docs/observability.md).
+
 ## Estrutura de saída
 
 Uma geração típica cria:

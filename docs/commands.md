@@ -20,7 +20,7 @@ Este documento lista os comandos principais da CLI `nsi` e suas flags.
 | `nsi config set <key> <value>` | Atualiza uma chave simples da configuração do projeto. |
 | `nsi validate`                 | Valida configuração, output e providers.               |
 | `nsi plan`                     | Exibe estimativas de URLs e arquivos.                  |
-| `nsi generate`                 | Gera sitemap index e sitemaps.                         |
+| `nsi generate`                 | Gera sitemap index, sitemaps e logs da execução.       |
 
 ## `nsi init`
 
@@ -207,7 +207,7 @@ nsi plan
 
 ## `nsi generate`
 
-Gera os arquivos XML.
+Gera os arquivos XML, cria um log JSONL da execução e mostra progresso resumido no terminal.
 
 ```bash
 nsi generate

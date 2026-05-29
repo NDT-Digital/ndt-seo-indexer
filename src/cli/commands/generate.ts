@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import { generateSitemaps } from "../../application/generate-sitemaps";
 import { loadConfigFromOptions } from "../config";
 import { printGenerateResult } from "../console";
+import { createCliGenerationObserver } from "../observability/create-cli-generation-observer";
 
 export function registerGenerateCommand(program: Command): void {
   program
@@ -21,12 +22,19 @@ export function registerGenerateCommand(program: Command): void {
         dryRun?: boolean;
       }) => {
         const config = await loadConfigFromOptions(options);
-        const result = await generateSitemaps(config, {
-          sitemapName: options.sitemap,
-          dryRun: options.dryRun,
-        });
+        const observer = await createCliGenerationObserver(config);
 
-        printGenerateResult(result);
+        try {
+          const result = await generateSitemaps(config, {
+            sitemapName: options.sitemap,
+            dryRun: options.dryRun,
+            observer,
+          });
+
+          printGenerateResult(result);
+        } finally {
+          await observer.close?.();
+        }
       },
     );
 }

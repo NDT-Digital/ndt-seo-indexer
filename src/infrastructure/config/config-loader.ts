@@ -49,6 +49,7 @@ export function normalizeProjectConfig(
           ),
         }
       : undefined,
+    logging: normalizeLoggingConfig(readOptionalRecord(value, "logging")),
     sitemaps: sitemaps.map((item, index) =>
       normalizeSitemapConfig(item, `${source}.sitemaps[${index}]`),
     ),
@@ -57,6 +58,32 @@ export function normalizeProjectConfig(
   validateConfig(config);
 
   return config;
+}
+
+function normalizeLoggingConfig(
+  value: Record<string, unknown> | undefined,
+): ProjectConfig["logging"] {
+  if (!value) {
+    return undefined;
+  }
+
+  const consoleConfig = readOptionalRecord(value, "console");
+
+  return {
+    enabled: readOptionalBoolean(value, "enabled"),
+    directory: readOptionalString(value, "directory"),
+    logGeneratedFiles: readOptionalBoolean(value, "logGeneratedFiles"),
+    console: consoleConfig
+      ? {
+          enabled: readOptionalBoolean(consoleConfig, "enabled"),
+          useColors: readOptionalBoolean(consoleConfig, "useColors"),
+          singleLineProgress: readOptionalBoolean(
+            consoleConfig,
+            "singleLineProgress",
+          ),
+        }
+      : undefined,
+  };
 }
 
 function normalizeSitemapConfig(value: unknown, source: string): SitemapConfig {

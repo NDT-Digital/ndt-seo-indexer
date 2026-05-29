@@ -194,6 +194,39 @@ https://example.com/records/abc-123
 | `defaultChangefreq` | Frequência padrão quando a linha não informar.  |
 | `defaultPriority`   | Prioridade padrão quando a linha não informar.  |
 
+## Logging
+
+A seção `logging` é opcional e controla logs JSONL e saída visual no console.
+
+```json
+{
+  "logging": {
+    "enabled": true,
+    "logGeneratedFiles": true,
+    "console": {
+      "enabled": true,
+      "useColors": true,
+      "singleLineProgress": true
+    }
+  }
+}
+```
+
+| Campo                                | Descrição                                                                                                  |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `logging.enabled`                    | Habilita logs em arquivo JSONL.                                                                            |
+| `logging.directory`                  | Diretório opcional para os logs. Quando omitido, a CLI usa uma pasta `logs` ao lado do diretório de saída. |
+| `logging.logGeneratedFiles`          | Campo reservado para controlar logs por arquivo gerado.                                                    |
+| `logging.console.enabled`            | Habilita a visualização resumida no terminal.                                                              |
+| `logging.console.useColors`          | Habilita cores ANSI no terminal.                                                                           |
+| `logging.console.singleLineProgress` | Atualiza progresso na mesma linha quando possível.                                                         |
+
+Cada execução de `generate` cria um arquivo como:
+
+```txt
+logs/generate-2026-05-29T22-30-15-123Z-a8f31c.jsonl
+```
+
 ## Alterando configurações via CLI
 
 Ler uma chave:

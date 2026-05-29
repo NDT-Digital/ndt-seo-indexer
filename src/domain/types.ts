@@ -85,6 +85,17 @@ export type SitemapConfig =
   | CsvSitemapConfig
   | JsonSitemapConfig;
 
+export type LoggingConfig = {
+  enabled?: boolean;
+  directory?: string;
+  logGeneratedFiles?: boolean;
+  console?: {
+    enabled?: boolean;
+    useColors?: boolean;
+    singleLineProgress?: boolean;
+  };
+};
+
 export type ProjectConfig = {
   project: string;
   siteUrl: string;
@@ -93,6 +104,7 @@ export type ProjectConfig = {
   limits?: {
     urlsPerSitemap?: number;
   };
+  logging?: LoggingConfig;
   sitemaps: SitemapConfig[];
 };
 
@@ -101,6 +113,7 @@ export type GeneratedSitemapFile = {
   filename: string;
   urlCount: number;
   lastmod: string;
+  fileSizeBytes?: number;
 };
 
 export type GenerateResult = {
@@ -109,6 +122,7 @@ export type GenerateResult = {
   sitemapIndexFilename: string;
   generatedFiles: GeneratedSitemapFile[];
   totalUrls: number;
+  totalBytesWritten: number;
 };
 
 export type PlanResult = {

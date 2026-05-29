@@ -19,6 +19,15 @@ export function createProjectConfigTemplate(input: {
     limits: {
       urlsPerSitemap: 40_000,
     },
+    logging: {
+      enabled: true,
+      logGeneratedFiles: true,
+      console: {
+        enabled: true,
+        useColors: true,
+        singleLineProgress: true,
+      },
+    },
     sitemaps: [
       {
         name: "static",
