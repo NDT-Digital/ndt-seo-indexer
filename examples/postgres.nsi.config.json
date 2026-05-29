@@ -1,0 +1,33 @@
+{
+  "project": "postgres-example",
+  "siteUrl": "https://example.com",
+  "output": {
+    "driver": "filesystem",
+    "directory": "./dist/postgres-sitemaps",
+    "clean": true
+  },
+  "sitemapIndex": {
+    "filename": "sitemap.xml"
+  },
+  "limits": {
+    "urlsPerSitemap": 40000
+  },
+  "sitemaps": [
+    {
+      "name": "records",
+      "type": "postgres",
+      "filenamePattern": "sitemaps/records-{page}.xml",
+      "batchSize": 40000,
+      "urlPattern": "/records/:slug",
+      "lastmodField": "updated_at",
+      "defaultChangefreq": "weekly",
+      "defaultPriority": 0.8,
+      "source": {
+        "connectionString": "postgres://user:password@localhost:5432/database",
+        "fetchSize": 5000,
+        "query": "SELECT slug, updated_at FROM seo_indexable_records WHERE is_indexable = true ORDER BY slug",
+        "countQuery": "SELECT COUNT(*) FROM seo_indexable_records WHERE is_indexable = true"
+      }
+    }
+  ]
+}

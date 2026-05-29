@@ -1,0 +1,129 @@
+name: Release and Publish Package
+
+on:
+  release:
+    types:
+      - published
+
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag to publish, for example v1.0.0"
+        required: true
+        type: string
+      prerelease:
+        description: "Publish package with npm dist-tag next"
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Resolve release metadata
+        id: release
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG_NAME="${{ inputs.tag_name }}"
+            PRERELEASE="${{ inputs.prerelease }}"
+          else
+            TAG_NAME="${{ github.event.release.tag_name }}"
+            PRERELEASE="${{ github.event.release.prerelease }}"
+          fi
+
+          VERSION="${TAG_NAME#v}"
+
+          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$PRERELEASE" >> "$GITHUB_OUTPUT"
+
+      - name: Validate release tag
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="${{ steps.release.outputs.tag_name }}"
+
+          if [[ ! "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "Invalid release tag format: '$TAG_NAME'"
+            echo "Expected format: v1.2.3, v1.2.3-beta.1, etc."
+            exit 1
+          fi
+
+          if ! gh api "repos/${{ github.repository }}/git/ref/tags/$TAG_NAME" --silent; then
+            echo "Release tag '$TAG_NAME' does not exist in this repository."
+            echo "Create the tag first or provide an existing tag."
+            exit 1
+          fi
+
+          echo "Release tag '$TAG_NAME' exists and is valid."
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.tag_name }}
+
+      - name: Setup Node for GitHub Packages
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
+          scope: "@ndt-digital"
+          cache: npm
+
+      - name: Sync package version with release tag
+        shell: bash
+        run: |
+          npm version "${{ steps.release.outputs.version }}" --no-git-tag-version --allow-same-version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run check
+        run: npm run check
+
+      - name: Validate CLI version
+        shell: bash
+        run: |
+          ACTUAL_VERSION="$(node dist/cli.js --version)"
+          EXPECTED_VERSION="${{ steps.release.outputs.version }}"
+
+          echo "Expected version: $EXPECTED_VERSION"
+          echo "Actual version: $ACTUAL_VERSION"
+
+          if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+            echo "CLI version does not match release tag."
+            exit 1
+          fi
+
+      - name: Pack npm tarball
+        run: npm pack
+
+      - name: Publish package to GitHub Packages
+        shell: bash
+        run: |
+          if [ "${{ steps.release.outputs.prerelease }}" = "true" ]; then
+            npm publish --tag next --registry=https://npm.pkg.github.com
+          else
+            npm publish --registry=https://npm.pkg.github.com
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create source zip
+        run: git archive --format=zip --output=ndt-seo-indexer-${{ steps.release.outputs.tag_name }}.zip HEAD
+
+      - name: Upload artifacts to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.release.outputs.tag_name }}
+          files: |
+            *.tgz
+            ndt-seo-indexer-${{ steps.release.outputs.tag_name }}.zip

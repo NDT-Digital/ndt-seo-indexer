@@ -1,0 +1,81 @@
+{
+  "name": "@ndt-digital/seo-indexer",
+  "version": "1.0.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "CLI configurável para gerar sitemaps XML escaláveis e índices de sitemaps para SEO programático.",
+  "keywords": [
+    "seo",
+    "sitemap",
+    "sitemap-index",
+    "programmatic-seo",
+    "cli",
+    "command-line",
+    "postgresql",
+    "typescript",
+    "nodejs"
+  ],
+  "author": "NDT Digital",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "ndt-seo-indexer": "./dist/cli.js",
+    "nsi": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "examples",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NDT-Digital/ndt-seo-indexer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NDT-Digital/ndt-seo-indexer/issues"
+  },
+  "homepage": "https://github.com/NDT-Digital/ndt-seo-indexer#readme",
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "cli": "node --no-deprecation --import tsx src/cli.ts",
+    "test": "vitest run",
+    "lint": "eslint src test",
+    "check": "npm run lint && npm run typecheck && npm run build",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "@types/node": "^24.0.0",
+    "@types/pg": "^8.11.10",
+    "eslint": "^10.1.0",
+    "prettier": "^3.5.0",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.4.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.0",
+    "typescript-eslint": "^8.24.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "project": "static-example",
+  "siteUrl": "https://example.com",
+  "output": {
+    "driver": "filesystem",
+    "directory": "./dist/static-sitemaps",
+    "clean": true
+  },
+  "sitemapIndex": {
+    "filename": "sitemap.xml"
+  },
+  "limits": {
+    "urlsPerSitemap": 40000
+  },
+  "sitemaps": [
+    {
+      "name": "static",
+      "type": "static",
+      "filename": "sitemaps/static.xml",
+      "urls": [
+        { "path": "/", "priority": 1, "changefreq": "weekly" },
+        { "path": "/about", "priority": 0.6, "changefreq": "monthly" },
+        { "path": "/privacy", "priority": 0.4, "changefreq": "monthly" }
+      ]
+    }
+  ]
+}

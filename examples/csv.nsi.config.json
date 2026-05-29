@@ -1,0 +1,29 @@
+{
+  "project": "csv-example",
+  "siteUrl": "https://example.com",
+  "output": {
+    "driver": "filesystem",
+    "directory": "./dist/csv-sitemaps",
+    "clean": true
+  },
+  "sitemapIndex": {
+    "filename": "sitemap.xml"
+  },
+  "limits": {
+    "urlsPerSitemap": 40000
+  },
+  "sitemaps": [
+    {
+      "name": "pages",
+      "type": "csv",
+      "filenamePattern": "sitemaps/pages-{page}.xml",
+      "batchSize": 40000,
+      "urlPattern": "/pages/:slug",
+      "lastmodField": "updated_at",
+      "source": {
+        "file": "./pages.csv",
+        "delimiter": ","
+      }
+    }
+  ]
+}

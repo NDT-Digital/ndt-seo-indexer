@@ -1,0 +1,29 @@
+{
+  "project": "json-example",
+  "siteUrl": "https://example.com",
+  "output": {
+    "driver": "filesystem",
+    "directory": "./dist/json-sitemaps",
+    "clean": true
+  },
+  "sitemapIndex": {
+    "filename": "sitemap.xml"
+  },
+  "limits": {
+    "urlsPerSitemap": 40000
+  },
+  "sitemaps": [
+    {
+      "name": "pages",
+      "type": "json",
+      "filenamePattern": "sitemaps/pages-{page}.xml",
+      "batchSize": 40000,
+      "urlPattern": "/pages/:slug",
+      "lastmodField": "updated_at",
+      "source": {
+        "file": "./pages.json",
+        "itemsPath": "items"
+      }
+    }
+  ]
+}
